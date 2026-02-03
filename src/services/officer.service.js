@@ -52,6 +52,15 @@ class OfficerService {
   static async getAll() {
     return await Officer.findAll({ include: 'location' });
   }
+
+  static async delete(id) {
+    const officer = await Officer.findByPk(id);
+    if (!officer) {
+      throw new Error('Officer not found');
+    }
+    await officer.destroy();
+    return true;
+  }
 }
 
 module.exports = OfficerService;

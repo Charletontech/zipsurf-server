@@ -55,14 +55,14 @@ class PaystackService {
         const userId = data.metadata.userId;
         const amount = data.amount / 100; // Convert back to main currency unit
 
-        // Fund the wallet
-        // We might want to check if this reference was already processed to avoid double funding
-        // For this prototype, we'll assume TransactionService handles idempotency or we just process it.
-        // Ideally, store the 'reference' in the Transaction model to enforce uniqueness.
+        // Fund the wallet (TransactionService handles idempotency via reference)
+        const result = await TransactionService.fundWallet(userId, amount, reference);
         
-        await TransactionService.fundWallet(userId, amount, reference);
+        if (result.duplicate) {
+            console.log(`[Paystack] Duplicate verification attempt for reference: ${reference}`);
+        }
         
-        return { status: 'success', amount, reference };
+        return { status: 'success', amount, reference, duplicate: !!result.duplicate };
       } else {
         throw new Error('Transaction was not successful');
       }

@@ -11,6 +11,10 @@ const Location = sequelize.define('Location', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: true // Optional for backward compatibility, but UI will enforce
+  },
   codePrefix: {
     type: DataTypes.STRING(3),
     allowNull: false,

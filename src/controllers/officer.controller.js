@@ -29,6 +29,16 @@ class OfficerController {
       res.status(500).json({ status: 'error', message: error.message });
     }
   }
+
+  static async delete(req, res) {
+    try {
+      const { id } = req.params;
+      await OfficerService.delete(id);
+      res.json({ status: 'success', message: 'Officer deleted successfully' });
+    } catch (error) {
+      res.status(404).json({ status: 'error', message: error.message });
+    }
+  }
 }
 
 module.exports = OfficerController;

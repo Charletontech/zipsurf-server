@@ -9,6 +9,7 @@ router.get('/', LocationController.getAllLocations); // Public read? Or protecte
 // Admin Only
 router.post('/', authenticate, authorizeAdmin, LocationController.addLocation);
 router.patch('/:id/status', authenticate, authorizeAdmin, LocationController.toggleStatus);
+router.delete('/:id', authenticate, authorizeAdmin, LocationController.delete);
 router.post('/regenerate-passwords', authenticate, authorizeAdmin, LocationController.regeneratePasswords);
 
 module.exports = router;

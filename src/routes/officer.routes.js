@@ -10,6 +10,9 @@ router.post('/register', OfficerController.register);
 // Admin Only List
 router.get('/', authenticate, authorizeAdmin, OfficerController.getAll);
 
+// Admin Only Delete
+router.delete('/:id', authenticate, authorizeAdmin, OfficerController.delete);
+
 // Public Verify (Officer Login)
 router.post('/verify', OfficerController.verify);
 

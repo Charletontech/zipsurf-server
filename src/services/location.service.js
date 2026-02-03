@@ -5,7 +5,7 @@ class LocationService {
     return await Location.findAll();
   }
 
-  static async create(name, status) {
+  static async create(name, address, status) {
     const prefix = name.substring(0, 3).toUpperCase();
     
     // Generate unique Station Code & Password
@@ -14,6 +14,7 @@ class LocationService {
     
     const newLocation = await Location.create({
       name,
+      address,
       status: status || 'Active',
       routerPass,
       stationCode,
@@ -42,6 +43,15 @@ class LocationService {
     });
     
     await Promise.all(updates);
+    return true;
+  }
+
+  static async delete(id) {
+    const location = await Location.findByPk(id);
+    if (!location) {
+      throw new Error('Location not found');
+    }
+    await location.destroy();
     return true;
   }
 }

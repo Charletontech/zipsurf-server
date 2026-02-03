@@ -12,8 +12,8 @@ class LocationController {
 
   static async addLocation(req, res) {
     try {
-      const { name, status } = req.body;
-      const newLocation = await LocationService.create(name, status);
+      const { name, address, status } = req.body;
+      const newLocation = await LocationService.create(name, address, status);
       res.status(201).json({ status: 'success', data: newLocation });
     } catch (error) {
       res.status(500).json({ status: 'error', message: error.message });
@@ -36,6 +36,16 @@ class LocationController {
       res.json({ status: 'success', message: 'All passwords regenerated' });
     } catch (error) {
       res.status(500).json({ status: 'error', message: error.message });
+    }
+  }
+
+  static async delete(req, res) {
+    try {
+      const { id } = req.params;
+      await LocationService.delete(id);
+      res.json({ status: 'success', message: 'Location deleted successfully' });
+    } catch (error) {
+      res.status(404).json({ status: 'error', message: error.message });
     }
   }
 }
