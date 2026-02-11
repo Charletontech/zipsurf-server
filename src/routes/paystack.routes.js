@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.post('/initialize', authenticate, PaystackController.initialize);
 router.post('/verify', authenticate, PaystackController.verify);
+router.post('/webhook', PaystackController.webhook);
 
 module.exports = router;

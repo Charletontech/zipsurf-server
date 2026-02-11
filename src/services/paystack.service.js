@@ -3,10 +3,14 @@ const TransactionService = require('./transaction.service');
 
 class PaystackService {
   static async initializeTransaction(userId, email, amount) {
+    const baseUrl = process.env.FRONTEND_URL.endsWith('/') 
+      ? process.env.FRONTEND_URL.slice(0, -1) 
+      : process.env.FRONTEND_URL;
+
     const params = {
       email,
       amount: amount * 100, // Paystack expects amount in kobo
-      callback_url: `${process.env.FRONTEND_URL}/frontend/dashboard/index.html`, // Dynamic redirect
+      callback_url: `${baseUrl}/dashboard/index.html`, // Dynamic redirect
       metadata: {
         userId,
         custom_fields: [
@@ -72,6 +76,28 @@ class PaystackService {
       if (error.message.includes('Duplicate')) throw error;
       throw new Error('Payment verification failed');
     }
+  }
+
+  static async handleWebhook(eventData) {
+    const { event, data } = eventData;
+
+    if (event === 'charge.success') {
+      const reference = data.reference;
+      const userId = data.metadata.userId;
+      const amount = data.amount / 100;
+
+      console.log(`[Webhook] Processing successful payment: ${reference} for user: ${userId}`);
+      
+      try {
+        const result = await TransactionService.fundWallet(userId, amount, reference);
+        return { success: true, duplicate: !!result.duplicate };
+      } catch (error) {
+        console.error('[Webhook] Error funding wallet:', error.message);
+        throw error;
+      }
+    }
+
+    return { success: true, message: 'Event ignored' };
   }
 }
 

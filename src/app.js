@@ -10,14 +10,27 @@ const app = express();
 app.use(helmet());
 
 // CORS Configuration
-const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5500"];
-// const allowedOrigins = ["https://zipsurf.netlify.app"];
+const allowedOrigins = [
+  "http://127.0.0.1:5500", 
+  "http://localhost:5500",
+  "http://localhost:3000",
+  "https://zipsurf.veetech.site",
+  "https://zipsurf.online"
+];
+
 app.use(
   cors({
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
+      // Check if origin is in allowed list or is a subdomain of veetech.site or zipsurf.online
+      const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
+                        origin.endsWith('.veetech.site') || 
+                        origin.endsWith('.zipsurf.online');
+      
+      if (isAllowed) {
+        return callback(null, true);
+      } else {
         return callback(
           new Error(
             "The CORS policy for this site does not allow access from the specified Origin."
@@ -25,27 +38,18 @@ app.use(
           false
         );
       }
-      return callback(null, true);
     },
     credentials: true,
   })
 );
 
-// Rate Limiting
-// app.set("trust proxy", 1);
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: "Too many requests from this IP, please try again after 15 minutes",
-});
-
-// Apply rate limiter to all requests
-app.use(limiter);
-
-// Body Parsing
-app.use(express.json());
+// ... Rate Limiting ...
+// Body Parsing with Raw Body Support for Webhooks
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
